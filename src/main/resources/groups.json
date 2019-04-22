@@ -1,0 +1,38 @@
+[
+  {
+    "id": "db62f60e-5adb-11e9-8063-bbb5544e54e2",
+    "name": "100",
+    "users": [
+      {
+        "id": "90205c1c-f67b-419d-bcad-69f4a62d637c",
+        "name": "Mikhail"
+      },
+      {
+        "id": "12345c1c-f67b-419d-bcad-69f4a62d637c",
+        "name": "Oleg"
+      },
+      {
+        "id": "409668c0-c0a0-4b09-80a6-1eaac4e61e29",
+        "name": "Tanya"
+      }
+    ]
+  },
+  {
+    "id": "a11f59d6-6064-11e9-aaa0-0bf5385b841d",
+    "name": "8march",
+    "users": [
+      {
+        "id": "65405c1c-f67b-419d-bcad-69f4a62d637c",
+        "name": "Olga"
+      },
+      {
+        "id": "84645e80-ddf1-4756-9142-08850218293e",
+        "name": "Katya"
+      },
+      {
+        "id": "e3c912b9-64f5-4d9b-adf2-5c73d05fdb77",
+        "name": "Dima"
+      }
+    ]
+  }
+]
