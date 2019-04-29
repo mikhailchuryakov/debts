@@ -17,21 +17,22 @@ final case class Group(id: UUID, name: String, users: List[User]) {
   def removeUser(id: UUID): Group = copy(users = users.filter(user => user.id != id)) // todo either delete ties
 
   def pay(fromID: UUID, value: Double, betweenIDs: Seq[UUID]): Group = {
+    val userRemaining = users.filter(user => !betweenIDs.contains(user.id)).filter(_.id != fromID)
+    println(userRemaining)
     val userFromOld = users.filter(_.id == fromID).head
     val userFromNew = User(userFromOld.id, userFromOld.name, userFromOld.ties.map(tie => betweenIDs.find(_ == tie.idTo) match {
-      case Some(a) => Tie(a, tie.value + value)
+      case Some(a) => Tie(a, tie.value - value)
       case _ => tie
     }))
-    val usersToNew = betweenIDs.map(userID => {
+    println(userFromNew)
+    val usersToNew = betweenIDs.filter(_ != fromID).map(userID => {
       val userToOld = users.filter(_.id == userID).head
       User(userToOld.id, userToOld.name,
-        userToOld.ties.map(tie => if (tie.idTo == fromID) Tie(fromID, tie.value - value) else tie))
+        userToOld.ties.map(tie => if (tie.idTo == fromID) Tie(fromID, tie.value + value) else tie))
     }).toList
-    val allUsers = users.flatMap(user => usersToNew.map(userTo => {
-      if (user.id == userTo.id) userTo
-      else if (user.id == userFromNew.id) userFromNew
-      else user
-    }))
+    println(usersToNew)
+    val allUsers = userFromNew :: usersToNew ++ userRemaining
+    println(allUsers)
     copy(users = allUsers)
   }
 
