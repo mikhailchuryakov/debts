@@ -61,5 +61,14 @@ object roomHttp {
             complete(rooms.createGroup(name))
           }
         }
+      ) ~
+      pathPrefix("pay")(
+        (get & parameter("id") & parameter("idfrom") & parameter("value") & parameter("idto")) {
+          (id, idfrom, value, idto) => {
+            rooms.payFromTo(UUID.fromString(id), UUID.fromString(idfrom), value.toDouble,
+              idto.split(",").map(id => UUID.fromString(id))).unsafeRunSync()
+            complete(rooms.get(UUID.fromString(id)))
+          }
+        }
       )
 }

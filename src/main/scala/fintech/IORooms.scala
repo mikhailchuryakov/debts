@@ -29,6 +29,8 @@ trait Rooms {
   def putUser(group: UUID, name: String): IO[Unit]
 
   def removeUser(group: UUID, user: UUID): IO[Unit]
+
+  def payFromTo(groupID: UUID, fromID: UUID, value: Double, betweenIDs: Array[UUID]): IO[Unit]
 }
 
 object Rooms {}
@@ -42,7 +44,6 @@ final case class IORooms(state: Ref[IO, State]) extends Rooms {
       ref <- Ref[IO].of(Group(id, name, List()))
       res <- state.modify(_.addNewGroupRef(id, name, ref))
     } yield {
-      println(state.get.unsafeRunSync().byID) // todo delete
       res
     }
   }.flatMap(_.get)
@@ -50,7 +51,6 @@ final case class IORooms(state: Ref[IO, State]) extends Rooms {
   def removeGroup(id: UUID): IO[Unit] = ??? // todo remove group
 
   private def getRef(id: UUID): IO[Ref[IO, Group]] = {
-    println(state.get.unsafeRunSync().byID) // todo delete
     state.get.flatMap(_.byID.get(id).liftTo[IO](GroupNotFound(id)))
   }
 
@@ -63,6 +63,11 @@ final case class IORooms(state: Ref[IO, State]) extends Rooms {
 
   def removeUser(groupID: UUID, userID: UUID): IO[Unit] =
     updateRef(groupID)(_.removeUser(userID))
+
+  def payFromTo(groupID: UUID, fromID: UUID, value: Double, betweenIDs: Array[UUID]): IO[Unit] = {
+    val toEvery = value / betweenIDs.length
+    updateRef(groupID)(_.pay(fromID, toEvery, betweenIDs))
+  }
 }
 
 object IORooms {
