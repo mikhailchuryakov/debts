@@ -18,7 +18,13 @@ trait Room[A] {
 
   def byId(id: UUID): IO[A]
 
-  def getUsersById(id: UUID): IO[Option[List[User]]]
+  def getUsersById(id: UUID): IO[List[User]]
+
+  def createGroup(createGroup: CreateGroup): IO[Group]
+
+  def createUser(groupID: UUID, createUser: CreateUser): IO[User]
+
+  def removeUser(id: UUID)(userID: UUID): IO[Unit]
 }
 
 object Room {
@@ -27,7 +33,24 @@ object Room {
     def all: IO[List[A]] = IO.pure(rooms)
     def getById(id: UUID): IO[Option[A]] = IO.pure(byIdMap.get(id))
     def byId(id: UUID): IO[A] = getById(id).flatMap(_.liftTo[IO](Key.notFound[A](id)))
-    def getUsersById(id: UUID): IO[Option[List[User]]] = IO.pure(Option(byIdMap(id).asInstanceOf[Group].users))
+    def getUsersById(id: UUID): IO[List[User]] = IO.pure(byIdMap.get(id) match {
+      case Some(a) => a.asInstanceOf[Group].users
+      case _ => Nil
+    })
+
+    def createGroup(createGroup: CreateGroup): IO[Group] = {
+      IO {
+        new Group(UUID.randomUUID(), createGroup.name, List.empty)
+      }
+    }
+
+    def createUser(groupID: UUID, createUser: CreateUser): IO[User] = {
+      IO {
+        ??? //new User(UUID.randomUUID(), createUser.name)
+      }
+    }
+
+    def removeUser(id: UUID)(userID: UUID): IO[Unit] = ???
   }
 
   private def makeListRooms[A: Key](groups: List[A]): IO[ListRooms[A]] =

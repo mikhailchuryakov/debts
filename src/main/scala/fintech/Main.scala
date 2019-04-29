@@ -11,7 +11,7 @@ import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.stream.ActorMaterializer
 import cats.effect.{ExitCode, IO, IOApp, Resource}
-import fintech.http.groupHttp
+import fintech.http.{groupHttp, roomHttp}
 
 object Main extends IOApp{
   def system: IO[ActorSystem] = IO(ActorSystem())
@@ -33,10 +33,12 @@ object Main extends IOApp{
   def run(args: List[String]): IO[ExitCode] =
     blocking.use { blockingCS =>
       for {
-        group <- Room.fromResource[Group]("/groups.json", blockingCS)
-        groupRout = groupHttp.route("group", group)
+        //groups <- Room.fromResource[Group]("/groups.json", blockingCS)
+        ioRoom <- IORooms.create()
+        //groupRout = groupHttp.route("group", groups)
+        ioRoomRoute = roomHttp.route(ioRoom)
         sys: ActorSystem <- system
-        _ <- runServerAndSystem(groupRout)(sys)
+        _ <- runServerAndSystem(/*groupRout ~ */ioRoomRoute)(sys)
         _                           <- IO.never
       } yield ExitCode.Success
     }

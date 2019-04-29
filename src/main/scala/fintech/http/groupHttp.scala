@@ -7,19 +7,59 @@ import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import cats.effect.{ContextShift, IO, Timer}
 import io.circe.Encoder
-import fintech.Room
+import fintech.{CreateGroup, Room, Rooms}
 
 import scala.concurrent.duration.{Duration, FiniteDuration}
 
 object groupHttp {
   def route[A: Encoder](prefix: String, room: Room[A])(implicit timer: Timer[IO], cs: ContextShift[IO]): Route =
     pathPrefix(prefix)(
-      (get & path("all")) (complete(room.all))
-    ) ~
-    pathPrefix(prefix / JavaUUID) (
-      id => {
-        path("users") (complete(room.getUsersById(id))) ~
-        complete(room.getById(id))
+      {
+        println("all")
+        (get & path("all")) (complete(room.all))
       }
-    )
+    ) ~
+      //      (put & parameter("name")) {
+      //        name => {
+      //          complete(???)
+      //          //          entity(as[CreateGroup]) {qwe =>
+      //          //            val inserted = room.createGroup(qwe(name))
+      //          //            complete(room.all + inserted.toString())
+      //          //          }
+      //          //          val group = room.createGroup(CreateGroup(name))
+      //          //          complete(IO.pure(room.all.unsafeRunSync() + group.toString()))
+      //        }
+      //      } ~
+      pathPrefix(prefix / JavaUUID)(
+        id => {
+          path("users")(complete(room.getUsersById(id))) ~
+            complete(room.getById(id))
+        }
+      )
+}
+
+object roomHttp {
+  def route(rooms: Rooms)(implicit timer: Timer[IO], cs: ContextShift[IO]): Route =
+    pathPrefix("user")(
+      (get & path("add") & parameter("id") & parameter("name")) {
+        (id, name) => {
+          val inserted = UUID.fromString(id)
+          rooms.putUser(inserted, name).unsafeRunSync()
+          complete(rooms.get(inserted))
+        }
+      } ~
+        (get & path("remove") & parameter("id") & parameter("userid")) {
+          (id, userid) => {
+            rooms.removeUser(UUID.fromString(id), UUID.fromString(userid)).unsafeRunSync()
+            complete(rooms.get(UUID.fromString(id)))
+          }
+        }
+    ) ~
+      pathPrefix("groups")(
+        (get & path("add") & parameter("name")) {
+          name => {
+            complete(rooms.createGroup(name))
+          }
+        }
+      )
 }
