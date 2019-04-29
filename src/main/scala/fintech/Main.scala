@@ -4,16 +4,14 @@ import java.util.concurrent.Executors
 
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
-
-import scala.concurrent.ExecutionContext
-import cats.implicits._
-import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.stream.ActorMaterializer
 import cats.effect.{ExitCode, IO, IOApp, Resource}
-import fintech.http.{groupHttp, roomHttp}
+import fintech.http.roomHttp
 
-object Main extends IOApp{
+import scala.concurrent.ExecutionContext
+
+object Main extends IOApp {
   def system: IO[ActorSystem] = IO(ActorSystem())
 
   def runServerAndSystem(route: Route)(implicit system: ActorSystem): IO[Unit] =
@@ -38,8 +36,8 @@ object Main extends IOApp{
         //groupRout = groupHttp.route("group", groups)
         ioRoomRoute = roomHttp.route(ioRoom)
         sys: ActorSystem <- system
-        _ <- runServerAndSystem(/*groupRout ~ */ioRoomRoute)(sys)
-        _                           <- IO.never
+        _ <- runServerAndSystem(ioRoomRoute)(sys)
+        _ <- IO.never
       } yield ExitCode.Success
     }
 

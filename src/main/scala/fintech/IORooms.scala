@@ -2,34 +2,19 @@ package fintech
 
 import java.util.UUID
 
-import cats.data.OptionT
 import cats.effect.IO
 import cats.effect.concurrent.Ref
 import cats.implicits._
 import fintech.IORooms.State
-import cats.effect.{ContextShift, IO}
-import io.circe.Decoder
-import cats.implicits._
-
-import scala.collection.JavaConverters._
-import io.circe.parser._
-
-import scala.concurrent.ExecutionContext
 
 
 trait Rooms {
   def all(): IO[List[Group]]
-
   def createGroup(name: String): IO[Group]
-
   def removeGroup(id: UUID): IO[Unit]
-
   def get(id: UUID): IO[Group]
-
   def putUser(group: UUID, name: String): IO[Unit]
-
   def removeUser(group: UUID, user: UUID): IO[Unit]
-
   def payFromTo(groupID: UUID, fromID: UUID, value: Double, betweenIDs: Array[UUID]): IO[Unit]
 }
 
